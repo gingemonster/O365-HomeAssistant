@@ -245,9 +245,9 @@ Scan for new calendars and add to o365_calendars.yaml - No parameters.
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attemps from Home Assistant_**
 
 ## Example custom setup
-As well as the built in functionality many users many want to create more advanced custom sensors and automations using this integration, below are some examples.
+As well as the built in functionality many users may want to create more advanced custom sensors and automations using this integration, below are some examples.
 
-### Automations for meeting in X minute
+### Automation for meeting in X minute
 If you want an automations that can be triggered when you have a meeting in the next X minutes then you can create a templated binary sensor in config.yaml. The below example lets you set the number of minutes before you want the binary sensor to change by updating 'set minutesbeforeevent = 2' to your own value. Don't forget to update 'YOURCALENDARNAME' appropriately:
 
 ```yaml
@@ -268,7 +268,7 @@ template:
 
 ```
 
-Now you can create automations that are triggered by the change of this binary sensor from 'off' to 'on' like this example below that triggers only on weekdays between 7:30am and 6:30pm and sends a notification to your mobile device with a message that is the meeting summary:
+Now you can create automations that are triggered by the change of this binary sensor from 'off' to 'on'. The example below triggers only on weekdays between 7:30am and 6:30pm and sends a notification to your mobile device with a message that is the meeting summary, just update 'YOURBINARYSENSORNAME', 'YOURMOBILEDEVICENAME' and 'X' appropriately:
 
 ```yaml
 alias: You have meeting in X minutes
