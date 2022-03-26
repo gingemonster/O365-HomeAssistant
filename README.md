@@ -243,3 +243,57 @@ Scan for new calendars and add to o365_calendars.yaml - No parameters.
     4\. Restart home assistant again.
 
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attemps from Home Assistant_**
+
+## Example custom setup
+As well as the built in functionality many users many want to create more advanced custom sensors and automations using this integration, below are some examples.
+
+### Automations for meeting in X minute
+If you want an automations that can be triggered when you have a meeting in the next X minutes then you can create a templated binary sensor in config.yaml. The below example lets you set the number of minutes before you want the binary sensor to change by updating 'set minutesbeforeevent = 2' to your own value. Don't forget to update 'YOURCALENDARNAME' appropriately:
+
+```yaml
+template:
+  - binary_sensor:
+      - name: "You have a meeting in two minutes"
+        state: >
+          {# get events, filtering out all day events and those with a start time in the past #}
+          {% set eventslist = (states.calendar.YOURCALENDARNAME.attributes.data | selectattr('all_day', 'eq', False) | selectattr('start', 'gt', utcnow()) | list) %}
+          {% set minutesbeforeevent = 2 %}
+          {# check any events are coming back at all #}
+          {% if  eventslist %}
+              {% set nextstarttime = (eventslist | first).start %}
+              {# only want to be 'on' for 1 minute otherwise may retrigger automations #}
+              {{ as_timestamp(utcnow()) + minutesbeforeevent * 60 >= as_timestamp(nextstarttime) > as_timestamp(utcnow()) + (minutesbeforeevent-1) * 60 }}
+          {% endif %}
+          {# keep binary sensor template simple and return nothing other than on as empty will default to false #}
+
+```
+
+Now you can create automations that are triggered by the change of this binary sensor from 'off' to 'on' like this example below that triggers only on weekdays between 7:30am and 6:30pm and sends a notification to your mobile device with a message that is the meeting summary:
+
+```yaml
+alias: You have meeting in X minutes
+description: ''
+trigger:
+- platform: state
+  entity_id: binary_sensor.YOURBINARYSENSORNAME
+  from: 'off'
+  to: 'on'
+condition:
+- condition: time
+  before: '18:30:00'
+  after: '07:30:00'
+  weekday:
+  - fri
+  - thu
+  - wed
+  - tue
+  - mon
+action:
+- service: notify.YOURMOBILEDEVICENAME
+  data:
+    title: Meeting in X minutes
+    message: '{{ (states.calendar.YOURCALENDARNAME.attributes.data | selectattr(''all_day'',
+      ''eq'', False) | selectattr(''start'', ''gt'', utcnow()) | first).summary
+      }}'
+mode: single
+```
