@@ -280,7 +280,7 @@ trigger:
 - platform: template
   value_template: >-
     {# get events, filtering out all day events and those with a start time in the past #}
-    {% set eventslist = (states.calendar.earthware_calendar.attributes.data | selectattr('all_day','eq', False) | selectattr('start', 'gt', utcnow()) | list) %}
+    {% set eventslist = (states.calendar.YOURCALENDARNAME.attributes.data | selectattr('all_day','eq', False) | selectattr('start', 'gt', utcnow()) | list) %}
     {% set minutesbeforeevent = 2 %}
     {# check any events are coming back at all #}
     {% if eventslist %}
